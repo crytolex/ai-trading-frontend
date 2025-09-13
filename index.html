@@ -20,9 +20,20 @@
       padding: 15px;
       margin: 10px 0;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: transform 0.2s;
     }
-    .buy { color: green; }
-    .sell { color: red; }
+    .signal:hover {
+      transform: scale(1.02);
+    }
+    .buy { color: green; font-weight: bold; }
+    .sell { color: red; font-weight: bold; }
+    .details {
+      display: none;
+      margin-top: 10px;
+      font-size: 14px;
+      color: #555;
+    }
   </style>
 </head>
 <body>
@@ -36,13 +47,21 @@
         let data = await res.json();
         let container = document.getElementById("signals");
         container.innerHTML = "";
-        data.forEach(sig => {
+        data.forEach((sig, index) => {
           container.innerHTML += `
-            <div class="signal">
+            <div class="signal" onclick="toggleDetails(${index})">
               <h3>${sig.pair} (${sig.timeframe})</h3>
               <p>Signal: <span class="${sig.signal === 'CALL' ? 'buy' : 'sell'}">${sig.signal}</span></p>
               <p>Confidence: ${sig.confidence}</p>
               <p>Risk: ${sig.risk}</p>
+              <div id="details-${index}" class="details">
+                <p>📌 More Info:</p>
+                <ul>
+                  <li>Strategy: RSI + EMA</li>
+                  <li>Generated: ${new Date().toLocaleString()}</li>
+                  <li>Status: Waiting for execution</li>
+                </ul>
+              </div>
             </div>
           `;
         });
@@ -50,6 +69,12 @@
         document.getElementById("signals").innerText = "⚠️ Error loading signals";
       }
     }
+
+    function toggleDetails(index) {
+      let details = document.getElementById("details-" + index);
+      details.style.display = details.style.display === "block" ? "none" : "block";
+    }
+
     fetchSignals();
     setInterval(fetchSignals, 10000); // refresh every 10 sec
   </script>
