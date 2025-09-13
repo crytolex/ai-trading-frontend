@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Trading Bot Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .signal {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 10px 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .buy { color: green; }
+    .sell { color: red; }
+  </style>
+</head>
+<body>
+  <h1>📊 AI Trading Bot Signals</h1>
+  <div id="signals">Loading signals...</div>
+
+  <script>
+    async function fetchSignals() {
+      try {
+        let res = await fetch("https://new-ai-trading-bot.onrender.com/api/signals");
+        let data = await res.json();
+        let container = document.getElementById("signals");
+        container.innerHTML = "";
+        data.forEach(sig => {
+          container.innerHTML += `
+            <div class="signal">
+              <h3>${sig.pair} (${sig.timeframe})</h3>
+              <p>Signal: <span class="${sig.signal === 'CALL' ? 'buy' : 'sell'}">${sig.signal}</span></p>
+              <p>Confidence: ${sig.confidence}</p>
+              <p>Risk: ${sig.risk}</p>
+            </div>
+          `;
+        });
+      } catch (err) {
+        document.getElementById("signals").innerText = "⚠️ Error loading signals";
+      }
+    }
+    fetchSignals();
+    setInterval(fetchSignals, 10000); // refresh every 10 sec
+  </script>
+</body>
+</html>
